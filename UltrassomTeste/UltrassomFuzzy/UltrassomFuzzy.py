@@ -18,43 +18,27 @@ def trapmf(x, a, b, c, d, minimo, maximo):
     return int(y)
 
 def perto(x):
-   y = trapmf(x, 0, 0, 5, 25, 0, 255)
-   return f'p{y}\n'.encode()
+   return trapmf(x, 0, 0, 5, 25, 0, 255)
 
 def medio(x):
-   y = trapmf(x, 5, 20, 30, 35, 0, 255)
-   return f'm{y}\n'.encode()
+   return trapmf(x, 5, 20, 30, 35, 0, 255)
 
 def longe(x):
-   y = trapmf(x, 30, 35, 500, 500, 0, 255)
-   return f'l{y}\n'.encode()
+   return trapmf(x, 30, 35, 500, 500, 0, 255)
+
+def motor(x):
+    return trapmf(x, 0, 30, 500, 500, 0, 255)
+
 
 if __name__ == '__main__':
     serial = ser.Serial('/dev/ttyUSB0', baudrate=115200)
 
     while True:
-        arduinoData = serial.readline().decode('ascii')
-
         try:
-            num = int(arduinoData)
-                        
-            print(f'perto: {perto(num)}\nmedio: {medio(num)}\nlonge: {longe(num)}\n\n')
+            arduinoData = int(serial.readline().decode('ascii'))
 
-            serial.write(perto(num))
-            serial.write(medio(num))
-            serial.write(longe(num))
-
-            #serial.write(b'p')
-            #serial.write(coiso)
-            #serial.write(b'\n')
-
-            #serial.write(b'm')
-            #serial.write(str(medio(num)).encode())
-            #serial.write(b'\n')
-
-            #serial.write(b'l')
-            #serial.write(str(longe(num)).encode())
-            #serial.write(b'\n')
-
-        except:
-            print('Error converting to int!')
+            serial.write(f'd{perto(arduinoData)};{medio(arduinoData)};{longe(arduinoData)};{motor(arduinoData)}'.encode())
+            
+        except UnicodeDecodeError:
+            #print('Error converting to int!')
+            pass

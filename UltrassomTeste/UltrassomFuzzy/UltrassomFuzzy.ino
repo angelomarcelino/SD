@@ -1,96 +1,76 @@
 #include <Ultrasonic.h>
+#define BTN_PIN 2
+#define POT_PIN 0
+#define LED_PERTO 11
+#define LED_MEDIO 10
+#define LED_LONGE 9
+#define MOTOR_PIN1 3
+#define MOTOR_PIN2 4
+#define HEADLIGHT_LEFT 5
+#define HEADLIGHT_RIGHT 6
 
-/*
-   Pass as a parameter the trigger and echo pin, respectively,
-   or only the signal pin (for sensors 3 pins), like:
-   Ultrasonic ultrasonic(13);
-*/
 Ultrasonic ultrasonic(12, 13);
-int distance;
-int ledPerto = 11;
-int ledMedio = 10;
-int ledLonge = 9;
-int incomingInt = 0;
-const byte numChars = 32;
-char receivedChars[numChars];   // an array to store the received data
-boolean newData;
+
+int distance = 0;
+int potVal = 0;
+
+String perto, medio, longe, motor;
+
+bool shouldRun = true;
 
 void setup() {
-  pinMode(ledPerto, OUTPUT);
-  pinMode(ledMedio, OUTPUT);
-  pinMode(ledLonge, OUTPUT);
   Serial.begin(115200);
+  
+  pinMode(LED_PERTO, OUTPUT);
+  pinMode(LED_MEDIO, OUTPUT);
+  pinMode(LED_LONGE, OUTPUT);
+
+  pinMode(HEADLIGHT_LEFT, OUTPUT);
+  pinMode(HEADLIGHT_RIGHT, OUTPUT);
+
+  pinMode(BTN_PIN, INPUT);
+  attachInterrupt(
+    digitalPinToInterrupt(BTN_PIN), 
+    []() { shouldRun = !shouldRun; }, 
+    RISING
+  );
 }
 
 void loop() {
-  // Pass INC as a parameter to get the distance in inches
-  distance = ultrasonic.read();
-  Serial.println(distance, DEC);
-  /*
-  while (Serial.available() > 0) {
-    char command = Serial.read();
-    if (command == 'p') {
-      recvWithEndMarker();
-      incomingInt = getNewNumber();
-      analogWrite(ledPerto, incomingInt);
-      command = Serial.read();
-      if (command == 'm') {
-        recvWithEndMarker();
-        incomingInt = getNewNumber();
-        analogWrite(ledMedio, incomingInt);
-        command = Serial.read();
-        if (command = 'l') {
-          recvWithEndMarker();
-          incomingInt = getNewNumber();
-          analogWrite(ledLonge, incomingInt);
-        }
-        else return;
-      }
-      else return;
-    }
-    else return;
-  }
-  */
-  while(Serial.available() > 0) {
-    char command = Serial.read();
-    if(command == 'p')
-      analogWrite(ledPerto, 255);  
-    if(command == 'm')
-      analogWrite(ledMedio, 127);
-    if(command == 'l')
-      analogWrite(ledLonge, 70);
-  }
+  if(shouldRun) { 
+    distance = ultrasonic.read();
+    Serial.println(distance, DEC);
   
-}
+    while(Serial.available() > 0) {
+  
+      if(Serial.read() == 'd') {
+        perto = Serial.readStringUntil(';');
+        medio = Serial.readStringUntil(';');
+        longe = Serial.readStringUntil(';');
+        motor = Serial.readStringUntil(';'); 
+      
+        analogWrite(LED_PERTO, perto.toInt());
+        analogWrite(LED_MEDIO, medio.toInt());
+        analogWrite(LED_LONGE, longe.toInt());
 
-void recvWithEndMarker() {
-  static byte ndx = 0;
-  char endMarker = '\n';
-  char rc;
-
-  while (Serial.available() > 0) {
-    rc = Serial.read();
-
-    if (rc != endMarker) {
-      receivedChars[ndx] = rc;
-      ndx++;
-      if (ndx >= numChars) {
-        ndx = numChars - 1;
+        analogWrite(MOTOR_PIN1, motor.toInt());
+        digitalWrite(MOTOR_PIN2, 0);
       }
     }
-    else {
-      receivedChars[ndx] = '\0'; // terminate the string
-      ndx = 0;
-      newData = true;
-    }
-  }
-}
 
-int getNewNumber() {
-  int dataNumber = 0;
-  if (newData == true) {
-    dataNumber = atoi(receivedChars);
-    newData = false;
+    potVal = analogRead(POT_PIN);
+    analogWrite(HEADLIGHT_LEFT, potVal/4);
+    analogWrite(HEADLIGHT_RIGHT, potVal/4);
+    
+  } else {
+    analogWrite(LED_PERTO, 0);
+    analogWrite(LED_MEDIO, 0);
+    analogWrite(LED_LONGE, 0);
+    
+    analogWrite(HEADLIGHT_LEFT, 0);
+    analogWrite(HEADLIGHT_RIGHT, 0);
+
+    analogWrite(MOTOR_PIN1, 0);
+    digitalWrite(MOTOR_PIN2, 0);
   }
-  return dataNumber;
 }
