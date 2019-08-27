@@ -4,9 +4,7 @@ Repositórios para projetos da disciplinas Sistemas Digitais 2019.2 pela Univers
 
 ## Diretórios
 
-Diretório utilizado para armazenar códigos simples para apender funcionalidades da plataforma Arduino.
-
-- **[SimpleArduinoCodes](SimpleArduinoCodes/)**:
+- **[SimpleArduinoCodes](SimpleArduinoCodes/)**: Diretório utilizado para armazenar códigos simples para apender funcionalidades da plataforma Arduino.
   - **[CrystalLiquidChar](SimpleArduinoCodes/CrystalLiquidChar/)**
   - **[CrystalLiquidHelloWorld](SimpleArduinoCodes/CrystalLiquidHelloWorld/)**
   - **[LedBlinkingSOS](SimpleArduinoCodes/LedBlinkingSOS/)**
