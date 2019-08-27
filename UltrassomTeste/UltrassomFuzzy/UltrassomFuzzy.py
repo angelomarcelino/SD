@@ -1,4 +1,4 @@
-import serial
+import serial as ser
 import time
 
 def trapmf(x, a, b, c, d, minimo, maximo):
@@ -19,35 +19,42 @@ def trapmf(x, a, b, c, d, minimo, maximo):
 
 def perto(x):
    y = trapmf(x, 0, 0, 5, 25, 0, 255)
-   return int(y)
+   return f'p{y}\n'.encode()
 
 def medio(x):
    y = trapmf(x, 10, 25, 30, 80, 0, 255)
-   return int(y)
+   return f'm{y}\n'.encode()
 
 def longe(x):
    y = trapmf(x, 30, 80, 500, 500, 0, 255)
-   return int(y)
+   return f'l{y}\n'.encode()
 
-coisa = serial.Serial('/dev/ttyACM0', baudrate = 9600, timeout = 1)
+if __name__ == '__main__':
+    serial = ser.Serial('/dev/ttyUSB0', baudrate=115200)
 
-while True:
-    arduinoData = coisa.readline().decode('ascii')
+    while True:
+        arduinoData = serial.readline().decode('ascii')
 
-    try:
-        num = int(arduinoData)
+        try:
+            num = int(arduinoData)
+                        
+            print(f'perto: {perto(num)}\nmedio: {medio(num)}\nlonge: {longe(num)}\n\n')
 
-        coisa.write(b'p')
-        coisa.write(str(perto(num)).encode())
-        coisa.write(b'\n')
+            serial.write(perto(num))
+            serial.write(medio(num))
+            serial.write(longe(num))
 
-        coisa.write(b'm')
-        coisa.write(str(medio(num)).encode())
-        coisa.write(b'\n')
+            #serial.write(b'p')
+            #serial.write(coiso)
+            #serial.write(b'\n')
 
-        coisa.write(b'l')
-        coisa.write(str(longe(num)).encode())
-        coisa.write(b'\n')
+            #serial.write(b'm')
+            #serial.write(str(medio(num)).encode())
+            #serial.write(b'\n')
 
-    except:
-        pass
+            #serial.write(b'l')
+            #serial.write(str(longe(num)).encode())
+            #serial.write(b'\n')
+
+        except:
+            print('Error converting to int!')

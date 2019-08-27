@@ -19,32 +19,48 @@ void setup() {
   pinMode(ledPerto, OUTPUT);
   pinMode(ledMedio, OUTPUT);
   pinMode(ledLonge, OUTPUT);
-  Serial.begin(9600);
+  Serial.begin(115200);
 }
 
 void loop() {
   // Pass INC as a parameter to get the distance in inches
   distance = ultrasonic.read();
   Serial.println(distance, DEC);
-
+  /*
   while (Serial.available() > 0) {
     char command = Serial.read();
     if (command == 'p') {
       recvWithEndMarker();
       incomingInt = getNewNumber();
       analogWrite(ledPerto, incomingInt);
+      command = Serial.read();
+      if (command == 'm') {
+        recvWithEndMarker();
+        incomingInt = getNewNumber();
+        analogWrite(ledMedio, incomingInt);
+        command = Serial.read();
+        if (command = 'l') {
+          recvWithEndMarker();
+          incomingInt = getNewNumber();
+          analogWrite(ledLonge, incomingInt);
+        }
+        else return;
+      }
+      else return;
     }
-    if (command == 'm') {
-      recvWithEndMarker();
-      incomingInt = getNewNumber();
-      analogWrite(ledMedio, incomingInt);
-    }
-    if (command == 'l') {
-      recvWithEndMarker();
-      incomingInt = getNewNumber();
-      analogWrite(ledLonge, incomingInt);
-    }
+    else return;
   }
+  */
+  while(Serial.available() > 0) {
+    char command = Serial.read();
+    if(command == 'p')
+      analogWrite(ledPerto, 255);  
+    if(command == 'm')
+      analogWrite(ledMedio, 127);
+    if(command == 'l')
+      analogWrite(ledLonge, 70);
+  }
+  
 }
 
 void recvWithEndMarker() {
