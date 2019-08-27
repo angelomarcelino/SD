@@ -22,11 +22,11 @@ def perto(x):
    return f'p{y}\n'.encode()
 
 def medio(x):
-   y = trapmf(x, 10, 25, 30, 80, 0, 255)
+   y = trapmf(x, 5, 20, 30, 35, 0, 255)
    return f'm{y}\n'.encode()
 
 def longe(x):
-   y = trapmf(x, 30, 80, 500, 500, 0, 255)
+   y = trapmf(x, 30, 35, 500, 500, 0, 255)
    return f'l{y}\n'.encode()
 
 if __name__ == '__main__':
