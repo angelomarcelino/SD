@@ -53,12 +53,11 @@ void loop() {
   */
   while(Serial.available() > 0) {
     char command = Serial.read();
-    if(command == 'p')
-      analogWrite(ledPerto, 255);  
-    if(command == 'm')
-      analogWrite(ledMedio, 127);
-    if(command == 'l')
-      analogWrite(ledLonge, 70);
+    if(command == 'p'){  
+      recvWithEndMarker();
+      incomingInt = getNewNumber();
+      analogWrite(ledPerto, incomingInt);
+    }
   }
   
 }
