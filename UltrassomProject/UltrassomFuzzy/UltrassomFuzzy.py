@@ -1,5 +1,5 @@
 import serial as ser
-import time
+import datetime
 
 def trapmf(x, a, b, c, d, minimo, maximo):
     y = 0
@@ -37,6 +37,14 @@ if __name__ == '__main__':
         try:
             arduinoData = int(serial.readline().decode('ascii'))
 
+            print('Timestamp: {}\nPerto: {}\nMedio: {}\nLonge: {}\nMotor: {}\n\n'.format(
+                datetime.datetime.now().isoformat(), 
+                perto(arduinoData), 
+                medio(arduinoData), 
+                longe(arduinoData), 
+                motor(arduinoData)
+            ))
+                        
             serial.write(f'd{perto(arduinoData)};{medio(arduinoData)};{longe(arduinoData)};{motor(arduinoData)}'.encode())
             
         except UnicodeDecodeError:
