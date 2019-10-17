@@ -1,10 +1,27 @@
 #include <avr/interrupt.h>
 #include <Arduino.h>
 
-#define F_CPU 16000000UL
+uint16_t cont = 0;
 
-ISR(TIMER1_COMPA_VECT) {
-	Serial.println("Interrupt");
+ISR(TIMER1_COMPA_vect) {
+	// Serial.println("Interrupt");
+	PORTD = (~PORTD & 0b10000000) | (PORTD & 0b0111111);
+
+	/*
+	cont++;
+
+	Serial.print("Cont: ");
+	Serial.println(cont);
+
+	if (cont == 1250) {
+		if (PORTD & 0b1000000)
+			PORTD |= 0b00000000;
+		else 
+			PORTD |= 0b10000000;
+
+		cont = 0;
+	}
+	*/
 }
 
 void blinkRightLight() {
@@ -75,8 +92,8 @@ void modoLigado() {
 }
 
 int main(void) {
-	Serial.begin(115200);
-	Serial.println("Ready");
+	// Serial.begin(115200);
+	// Serial.println(":: Ready ::");
 
 	// Configuração do ADC
 	ADMUX |= 0b01100000;  // AVCC como referência; ADLAR = 1; MUX = 0000
@@ -102,18 +119,19 @@ int main(void) {
 	// TCCR1A |= 0b10000011;
 	// TCCR1B |= 0b00001011;
 	// TIMSK1 |= 0b00000010;
+	
+	DDRB |= 0b00010000; 
+	TCCR1A |= 0b11000000; // _BV(COM1A0);
+  	TCCR1B |= _BV(CS10) | _BV(WGM12);
+	TIMSK1 |= 0b00000010;
+
+	OCR1A = 7811;
+
+	// PORTB |= 0b00010000;
+
 
 	// Habilitação dos interrupts
-	// sei();
-
-	OCR2A = 62;
-    TCCR2A |= (1 << WGM21);
-    // Set to CTC Mode
-    TIMSK2 |= (1 << OCIE2A);
-    //Set interrupt on compare match
-    TCCR2B |= (1 << CS21);
-    // set prescaler to 64 and starts PWM
-    // sei();
+	sei();
 
 	while(true) {
 		// Lê a chave de ignição
