@@ -1,39 +1,65 @@
 #include <avr/interrupt.h>
 #include <Arduino.h>
 
-uint16_t cont = 0;
+#define F_CPU 16000000UL 
+#define BAUD 38400
+#define MY_UBRR F_CPU/16/BAUD-1
+
+void setupSerial(unsigned int ubrr) {
+	// Define o baud rate 
+    // UBRR0H: contém os 4 bits mais significativos do baud rate
+	UBRR0H = (unsigned char)(ubrr>>8);
+	// UBRR0L: contém os 8 bits menos significatios
+    UBRR0L = (unsigned char)ubrr;
+	
+    // Habilita a transmissão
+	UCSR0B = (1<<TXEN0);
+	
+    // Define o formato dos dados 
+	UCSR0C = (1<<USBS0)|(3<<UCSZ00);
+}
+
+void serialTransmit(unsigned char data) {
+    // Espera para a transmissão do buffer
+	while ( !( UCSR0A & (1<<UDRE0)) );
+	
+    // Coloca os dados no buffer de envio
+	UDR0 = data;
+}
+
+void serialPrint(const char *s) {
+	unsigned int i = 0;
+
+	while (s[i]) serialTransmit(s[i++]);
+}
+
+void setupTimer() {
+    OCR1A = 0x3D08;
+
+    // CTC no OCR1A
+    TCCR1B |= (1 << WGM12);
+    // Define interupção por comparação de match
+    TIMSK1 |= (1 << OCIE1A);
+    // Prescaler de 1024 e start do timer
+    TCCR1B |= (1 << CS12) | (1 << CS10);
+
+    sei();
+}
 
 ISR(TIMER1_COMPA_vect) {
-	// Serial.println("Interrupt");
-	PORTD = (~PORTD & 0b10000000) | (PORTD & 0b0111111);
 
-	/*
-	cont++;
-
-	Serial.print("Cont: ");
-	Serial.println(cont);
-
-	if (cont == 1250) {
-		if (PORTD & 0b1000000)
-			PORTD |= 0b00000000;
-		else 
-			PORTD |= 0b10000000;
-
-		cont = 0;
-	}
-	*/
 }
 
 void blinkRightLight() {
-	Serial.println("Pisca direito");
+	serialPrint("Pisca direito\n");
 }
 
 void blinkLeftLight() {
-	Serial.println("Pisca esquerdo");	
+	serialPrint("Pisca esquerdo\n");	
 }
 
 void modoDesligado() {
-	// Serial.print("\n\t____Modo Desligado____\n");
+	serialPrint("\n\t____Modo Desligado____\n");
 
 	// Zerar contadores 
 
@@ -43,7 +69,7 @@ void modoDesligado() {
 }
 
 void modoFarois() {
-	Serial.print("\n\t____Modo Farois____\n");
+	serialPrint("\n\t____Modo Farois____\n");
 	// Ligar farois 
 	PORTD |= 0b00010000;
 	PORTD |= 0b00100000;
@@ -60,13 +86,13 @@ void modoFarois() {
 	ADCSRA |= 0b01000000;
 	while (!(ADCSRA & 0b00010000));
 	
-	Serial.print("\nSensor de combustivel: ");
-	Serial.println(ADCH);
+	serialPrint("\nSensor de combustivel: ");
+	serialPrint(ADCH);
 
 }
 
 void modoLigado() {
-	Serial.print("\n\t____Modo Ligado____\n");
+	serialPrint("\n\t____Modo Ligado____\n");
 
 	// Enviar um sinal com 1s de duração
 
@@ -76,8 +102,8 @@ void modoLigado() {
 	ADCSRA |= 0b01000000;
 	while (!(ADCSRA & 0b00010000));
 	
-	Serial.print("\nSensor de velocidade: ");
-	Serial.println(ADCH);
+	serialPrint("\nSensor de velocidade: ");
+	serialPrint(ADCH);
 
 	// Ligar farois 
 	PORTD |= 0b00010000;
@@ -92,8 +118,8 @@ void modoLigado() {
 }
 
 int main(void) {
-	// Serial.begin(115200);
-	// Serial.println(":: Ready ::");
+	setupSerial();
+	setupTimer();
 
 	// Configuração do ADC
 	ADMUX |= 0b01100000;  // AVCC como referência; ADLAR = 1; MUX = 0000
@@ -105,33 +131,6 @@ int main(void) {
 
 	DDRD |= 0b11110000; // PD 4, 5, 6 e 7 como saída 
 	PORTD |= 0b00000000; // Nenhum PULL-UP
-
-	//Configuração do Contador
-	//  Timer/Counter Control Register
-	// TCCR0A |= 0b10000011;
-	// Timer/Counter Register 
-	// 	TCCR0B |= 0b00001001;
-	// Timer/Counter Interrupt Mask Register
-	// TIMSK0 |= 0b00000010;
-
-	//Configuração do Contador
-	// DDRB   |= 0b00000100;
-	// TCCR1A |= 0b10000011;
-	// TCCR1B |= 0b00001011;
-	// TIMSK1 |= 0b00000010;
-	
-	DDRB |= 0b00010000; 
-	TCCR1A |= 0b11000000; // _BV(COM1A0);
-  	TCCR1B |= _BV(CS10) | _BV(WGM12);
-	TIMSK1 |= 0b00000010;
-
-	OCR1A = 7811;
-
-	// PORTB |= 0b00010000;
-
-
-	// Habilitação dos interrupts
-	sei();
 
 	while(true) {
 		// Lê a chave de ignição
