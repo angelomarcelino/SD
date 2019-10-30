@@ -68,9 +68,34 @@ void speedometerMode() {
 	ADCSRA |= 0b01000000;
 	while (!(ADCSRA & 0b00010000));
 
-    uint leds = map(ADCH, 0, 255, 0, 6);
+    uint leds = map(ADCH, 0, 255, 0, 5);
 
-    for (uint i = 0; i < leds; i++) PORTB |= 1<<leds;
+    switch (leds) {
+        case 1:
+            PORTB = 0b00000001;
+            break;
+        
+        case 2:
+            PORTB = 0b00000011;
+            break;
+        
+        case 3:
+            PORTB = 0b00000111;
+            break;
+        
+        case 4:
+            PORTB = 0b00001111;
+            break;
+
+        case 5:
+            PORTB = 0b00011111;
+            break;
+        
+        default:
+            PORTB = 0x0;
+            break;
+    }
+    
 }
 
 int main(void) {
