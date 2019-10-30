@@ -95,10 +95,13 @@ void speedometerMode() {
             PORTB = 0x0;
             break;
     }
+
+    serialPrint("speedometerMode\n");
     
 }
 
 int main(void) {
+    // Configurações
     setupTimer();
 	setupSerial(MY_UBRR);
 
