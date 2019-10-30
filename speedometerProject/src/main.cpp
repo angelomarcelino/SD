@@ -68,10 +68,8 @@ void speedometerMode() {
 	ADCSRA |= 0b01000000;
 	while (!(ADCSRA & 0b00010000));
 
-    serialPrint("Velocidade: ")
-    serialPrint(ADCH);
-
     uint leds = map(ADCH, 0, 255, 0, 6);
+
     for (uint i = 0; i < leds; i++) PORTB |= 1<<leds;
 }
 
@@ -88,13 +86,13 @@ int main(void) {
     PORTB |= 0x0;
 
     // Configura o botão de entrada com PULL-UP
-    DDRD &=  0b1111011;
-    PORTD |= 0b0000100;
+    DDRD &=  0b01111111;
+    PORTD |= 0b10000000;
 
 	while(true) {	
-        if (PINC & 0b0000001)
+        if (!(PIND & 0b10000000))
 			alert = !alert;
-		else 
-			speedometerMode();
+        else 
+            speedometerMode();       
 	}
 }
