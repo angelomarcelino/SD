@@ -15,12 +15,12 @@ uint map(uint x, uint in_min, uint in_max, uint out_min, uint out_max) {
 
 void setupSerial(unsigned int ubrr) {
 	// Define o baud rate 
-    // UBRR0H: contém os 4 bits mais significativos do baud rate
+    // UBRR0H: contem os 4 bits mais significativos do baud rate
 	UBRR0H = (unsigned char)(ubrr>>8);
-	// UBRR0L: contém os 8 bits menos significatios
+	// UBRR0L: contem os 8 bits menos significatios
     UBRR0L = (unsigned char)ubrr;
 	
-    // Habilita a transmissão
+    // Habilita a transmissao
 	UCSR0B = (1<<TXEN0);
 	
     // Define o formato dos dados 
@@ -28,7 +28,7 @@ void setupSerial(unsigned int ubrr) {
 }
 
 void serialTransmit(unsigned char data) {
-    // Espera para a transmissão do buffer
+    // Espera para a transmissao do buffer
 	while ( !( UCSR0A & (1<<UDRE0)) );
 	
     // Coloca os dados no buffer de envio
@@ -46,7 +46,7 @@ void setupTimer() {
 
     // CTC no OCR1A
     TCCR1B |= (1 << WGM12);
-    // Define interupção por comparação de match
+    // Define interupcao por comparacao de match
     TIMSK1 |= (1 << OCIE1A);
     // Prescaler de 1024 e start do timer
     TCCR1B |= (1 << CS12) | (1 << CS10);
@@ -101,19 +101,19 @@ void speedometerMode() {
 }
 
 int main(void) {
-    // Configurações
+    // Configuracoes
     setupTimer();
 	setupSerial(MY_UBRR);
 
-    // Configuração do ADC
-	ADMUX |= 0b01100000;  // AVCC como referência; ADLAR = 1; MUX = 0000
+    // Configuracao do ADC
+	ADMUX |= 0b01100000;  // AVCC como referencia; ADLAR = 1; MUX = 0000
 	ADCSRA |= 0b10000111; // Enable do ADC, Escalonador de Clock em 128;
 
-    // Configuração das saídas
+    // Configuracao das saidas
     DDRB |= 0b00111111;
     PORTB |= 0x0;
 
-    // Configura o botão de entrada com PULL-UP
+    // Configura o botao de entrada com PULL-UP
     DDRD &=  0b01111111;
     PORTD |= 0b10000000;
 
